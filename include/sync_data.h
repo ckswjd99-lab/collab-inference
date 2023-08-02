@@ -41,3 +41,4 @@ void set_handler_sync_data_sync_finish(sync_data_t *sync_data, void (*handler)(v
 
 void write_data_frag(sync_data_t *sync_data, int idx, void *data_frag);
 int is_data_frag_ready(sync_data_t *sync_data, int idx);
+int is_sync_finish(sync_data_t *sync_data_t);

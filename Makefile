@@ -1,6 +1,6 @@
 TARGET=main
 ALIB=libconlin.a
-OBJECTS=sync_data.o
+OBJECTS=sync_data.o utils.o
 AVX2=1
 NEON=0
 GPU=0
