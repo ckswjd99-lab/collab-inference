@@ -54,3 +54,4 @@ dkms.conf
 .vscode
 obj
 main
+test_sync_data

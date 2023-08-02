@@ -1,34 +1,7 @@
 #include "collab_inference.h"
 #include "sync_data.h"
 
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-
-/*
-  struct sync_data_t {
-  int id;
-  
-  pthread_mutex_t mutex_access;
-  pthread_cond_t cond_finish;
-
-  void *data;
-  int data_size;
-  int data_frag_size;
-  int num_data_frag;
-  atomic_int num_data_frag_ready;
-  atomic_int *data_frag_ready;
-  atomic_int *data_frag_access;
-
-  void (*on_frag_ready)(void *args);  // call convention: on_frag_ready(sync_data_t *this, int data_frag_idx, void *on_frag_ready_preargs)
-  void *on_frag_ready_preargs;
-  int on_frag_ready_preargs_size;
-
-  void (*on_sync_finish)(void *args);   // call convention: on_sync_finish(sync_data_t *this, int data_frag_idx, void *on_sync_finish_preargs)
-  void *on_sync_finish_preargs;
-  int on_sync_finish_preargs_size;
-};
-*/
+#include <stdio.h>
 
 sync_data_t *new_sync_data(int id, void *data, int data_size, int data_frag_size) {
   sync_data_t *result = (sync_data_t *)malloc(sizeof(sync_data_t));
@@ -41,6 +14,7 @@ sync_data_t *new_sync_data(int id, void *data, int data_size, int data_frag_size
   assert(data_size % data_frag_size == 0);
   result->data = data ? data : malloc(data_size);
   result->data_size = data_size;
+  result->data_frag_size = data_frag_size;
   result->num_data_frag = data_size / data_frag_size;
 
   atomic_store(&result->num_data_frag_ready, 0);
@@ -77,11 +51,15 @@ void set_handler_sync_data_sync_finish(sync_data_t *sync_data, void (*handler)(v
 void write_data_frag(sync_data_t *sync_data, int idx, void *data_frag) {
   // Check if already ready
   int is_ready = atomic_load(&sync_data->data_frag_ready[idx]);
+  if (is_ready) printf("%d is ready\n", idx);
   if (is_ready) return;
 
   // Check if someone is writing
   int is_accessible = atomic_exchange(&sync_data->data_frag_access[idx], 0);
+  if (!is_accessible) printf("%d is writing\n", idx);
   if (!is_accessible) return;
+
+  printf("writing %d\n", idx);
 
   // Write data_frag
   memcpy(sync_data->data + sync_data->data_frag_size * idx, data_frag, sync_data->data_frag_size);

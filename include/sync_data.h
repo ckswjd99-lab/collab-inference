@@ -2,6 +2,10 @@
 #include "pthread.h"
 #include "stdatomic.h"
 
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+
 #define DF_EMPTY  0
 #define DF_READY  1
 

@@ -1,5 +1,5 @@
 TARGET=main
-ALIB=libaspen.a
+ALIB=libconlin.a
 OBJECTS=sync_data.o
 AVX2=1
 NEON=0
@@ -43,15 +43,11 @@ $(OBJDIR): $(DEPS)
 $(OBJDIR)%.o: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) $(OPTS) -c $< -o $@
 
-$(OBJDIR)%.o: %.cu $(DEPS)
-	$(NVCC) $(ARCH) $(COMMON) --compiler-options "$(CFLAGS)" -c $< -o $@
-
 obj:
 	mkdir -p obj
 
-test:
-	$(CC) test_transfer_rx.c -o test_transfer_rx.out
-	$(CC) test_transfer_tx.c -o test_transfer_tx.out
+test: $(ALIB)
+	$(CC) $(COMMON) $(CFLAGS) $(OPTS) ./test/test_sync_data.c -o test_sync_data $(LDFLAGS) $(ALIB)
 
 clean:
 	rm -rf $(TARGET) $(EXEOBJS) $(OBJS)
